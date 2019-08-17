@@ -1,8 +1,9 @@
-import os
-
 from flask import Flask, jsonify
-from api.models import User, Post, Comment
+from flask_graphql import GraphQLView
+from graphene import Schema
 
+from api.models import User, Post, Comment
+from api.schema import Query
 
 app = Flask(__name__)
 
@@ -29,6 +30,11 @@ def all_posts():
 def all_comments():
 	comments = Comment.query.all()
 	return jsonify({'comments': [comment.serialize() for comment in  comments]})
+
+
+view_func = GraphQLView.as_view(
+	'graphql', schema=Schema(query=Query), graphiql=True)
+app.add_url_rule('/graphql', view_func=view_func)
 
 
 if __name__ == "__main__":
